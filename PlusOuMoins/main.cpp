@@ -2,48 +2,101 @@
 
 using namespace std;
 
+void Secure_var(int& var, int min, int max) {
+	while (!(cin >> var) || var < min || var > max) {
+		cin.clear();
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		cout << "Une erreur est survenue, veuillez resaisir votre valeur : ";
+	}
+}
+
 int Start() {
 	system("cls");
+	int indication = 0;
+	int difficulty = 0; // Facile : 0 | Normal : 1 | Difficile : 2
 
 	int max_attempts = 10;
 	int left_attempts = max_attempts;
 	int current_attempts = 0;
 
-	int max_random = 100;
-	int target = rand() % max_random + 1;
-	int guess;
+	int max_random;
+	int guess = 0;
 
-	cout << "Bienvenue dans le jeu du Plus ou Moins. Vous avez " << max_attempts << " essaies pour trouver le chiffre aleatoire entre 0 et " << max_random << "." << endl;
-	cout << "Choisis un nombre: ";
+	cout << "Bienvenue dans le jeu du Plus ou Moins." << endl;
+	cout << "Dans quel mode de jeu voulez-vous jouer ? (Facile: 0 - Normal : 1 - Difficile : 2) -> ";
+	Secure_var(difficulty, 0, 2);
+
+	if (difficulty == 0) {
+		max_random = 20;
+	}
+	else if (difficulty == 1) {
+		max_random = 100;
+	}
+	else if (difficulty == 2) {
+		max_random = 500;
+	}
+	else {
+		max_random = 100;
+	}
+
+	cout << "Voulez-vous activer les indications de distance ? (Oui: 1 - Non: 0) -> ";
+	Secure_var(indication, 0, 1);
+
+	cout << "Vous avez " << max_attempts << " essaies pour trouver le chiffre aleatoire entre 0 et " << max_random << "." << endl;
+	cout << "Choisisez un nombre: ";
+
+	int target = rand() % max_random + 1;
 
 	while (true) {
-		bool restart;
+		int restart;
 
-		current_attempts += 1;
-		left_attempts -= 1;
+		Secure_var(guess, 0, 500);
+		if (left_attempts > 1) {
 
-		if (current_attempts == max_attempts) {
-			cout << endl << "Vous avez perdu ! Le nombre aleatoire etait : " << target << ". Voulez-vous recommencer ? (Oui: 1 - Non: 0) " << endl << "-> ";
-			cin >> restart; if (restart == 1) { Start(); }
-			break;
+			string distance;
+			int ecart = abs(guess - target);
+
+			if (indication) {
+				if (ecart >= 20) {
+					distance = " beaucoup ";
+				}
+				else {
+					distance = " un peu ";
+				}
+			}
+			else if (!indication) {
+				distance = " ";
+			}
+
+			if (target == guess) {
+				cout << "Bravo ! Le nombre aleatoire etait : " << target << ". Tu l'as trouve en " << current_attempts << " essaies." << endl;
+				cout << "Veux-tu recommencer ? (Oui: 1 - Non: 0)" << endl << "-> ";
+
+				Secure_var(restart, 0, 1); if (restart == 1) { Start(); }
+				else { exit(0); }
+				break;
+			}
+
+			if (target < guess) {
+				current_attempts += 1;
+				left_attempts -= 1;
+				cout << "C'est" << distance << "moins ! Il vous reste " << left_attempts << " essaies. Reessayer : ";
+			}
+
+			else {
+				current_attempts += 1;
+				left_attempts -= 1;
+				cout << "C'est" << distance << "plus ! Il vous reste " << left_attempts << " essaies. Reessayer : ";
+			}
 		}
-
-		cin >> guess;
-		if (target == guess) {
-			cout << "Bravo ! Le nombre aleatoire etait : " << target << ". Tu l'as trouve en " << current_attempts << " essaies." << endl;
-			cout << "Veux-tu recommencer ? (Oui: 1 - Non: 0)" << endl << "-> ";
-
-			cin >> restart; if (restart == 1) { Start(); } else { system("exit"); }
-			break;
-		}
-
-		if (target < guess) {
-			cout << "C'est moins ! Il vous reste "<< left_attempts << " essaies. Reessayer : ";
-		}
-
 		else {
-			cout << "C'est plus ! Il vous reste " << left_attempts << " essaies. Reessayer : ";
+			cout << endl << "Vous avez perdu ! Le nombre aleatoire etait : " << target << ". Voulez-vous recommencer ? (Oui: 1 - Non: 0) " << endl << "-> ";
+			Secure_var(restart, 0, 1); if (restart == 1) { Start(); }
+			else { exit(0); }
+			break;
 		}
+
+
 	}
 
 	return 0;
