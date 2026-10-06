@@ -14,7 +14,6 @@ int Start() {
 	system("cls");
 	int indication = 0; // Oui : 1 | Non : 0
 	int difficulty = 0; // Facile : 0 | Normal : 1 | Difficile : 2
-	int hotncold = 0;   // Oui : 1 | Non : 0
 
 	int max_attempts = 10;
 	int left_attempts = max_attempts;
@@ -60,11 +59,7 @@ int Start() {
 		if (left_attempts > 1) {
 
 			string distance;
-			string temperature;
 			int ecart = abs(guess - target);
-
-			int last_guess = 0;
-			int temp_ecart = (guess - last_guess);
 
 			if (indication) {
 				if (ecart >= 20) {
@@ -76,17 +71,6 @@ int Start() {
 			}
 			else if (!indication) {
 				distance = " ";
-			}
-
-			if (hotncold) {
-				if (temp_ecart != 0) {
-					if (temp_ecart > 0) {
-						temperature = " Froid ";
-					}
-					else {
-						temperature = " Chaud ";
-					}
-				}
 			}
 
 			if (target == guess) {
@@ -101,25 +85,12 @@ int Start() {
 			if (target < guess) {
 				current_attempts += 1;
 				left_attempts -= 1;
-				if (hotncold && current_attempts > 1) {
-					cout << "C'est" << temperature << "! Il vous reste " << left_attempts << " essaies. Reesayer : ";
-				}
-				else {
 				cout << "C'est" << distance << "moins ! Il vous reste " << left_attempts << " essaies. Reessayer : ";
-				last_guess = guess;
-				}
 			}
-
 			else {
 				current_attempts += 1;
 				left_attempts -= 1;
-				if (hotncold && current_attempts > 1) {
-					cout << "C'est " << temperature << " ! Il vous reste " << left_attempts << " essaies. Reesayer :";
-				}
-				else {
-					cout << "C'est" << distance << "plus ! Il vous reste " << left_attempts << " essaies. Reessayer : ";
-					last_guess = guess;
-				}
+				cout << "C'est" << distance << "plus ! Il vous reste " << left_attempts << " essaies. Reessayer : ";
 			}
 		}
 		else {
@@ -128,8 +99,6 @@ int Start() {
 			else { exit(0); }
 			break;
 		}
-
-
 	}
 
 	return 0;
