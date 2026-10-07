@@ -39,14 +39,6 @@ int Start() {
 		max_random = 100;
 	}
 
-	cout << "Voulez-vous activer le mode de jeu Chaud et Froid ? (Oui: 1 - Non: 0) -> ";
-	Secure_var(hotncold, 0, 1);
-
-	if (!hotncold) {
-		cout << "Voulez-vous activer les indications de distance ? (Oui: 1 - Non: 0) -> ";
-		Secure_var(indication, 0, 1);
-	}
-
 	cout << "Vous avez " << max_attempts << " essaies pour trouver le chiffre aleatoire entre 0 et " << max_random << "." << endl;
 	cout << "Choisisez un nombre: ";
 
