@@ -1,5 +1,11 @@
 #include <iostream>
 
+#define DEFAULT "\033[0m"
+#define RED "\033[31m"
+#define GREEN "\033[32m"
+#define BLUE "\033[34m"
+#define YELLOW "\033[33m"
+
 using namespace std;
 
 int AskInt(int min, int max)
@@ -19,50 +25,47 @@ int AskInt(int min, int max)
 
 void PrintCell(int c)
 {
-	cout << "[";
+	cout << YELLOW << "[ ";
 	if (c == -1)
 	{
-		cout << "X";
+		cout << RED << "X";
 	}
 	else
 	{
-		cout << c;
+		cout << GREEN << c;
 	}
-	cout << "]";
+	cout << YELLOW << " ] ";
 }
 
 int main()
 {
-	cout << "Bievenue sur le jeu du Morpion" << endl;
+	int cells[9];
+	int index = 0;
 
-	const int length = 3; // Longueur
-	const int width = 3;  // Largeur
-	int cell_count = 1;
-	int cells[length * width];
-
-	for (int l = 1; l < length+1; l++)
+	for (int i = 0; i < 9 + 1; i++)
 	{
-		for (int w = 1; w < width+1; w++)
-		{
-			cells[cell_count] = cell_count;
-			PrintCell(cell_count);
-			cell_count++;
-		}
-		cout << endl;
+		cells[i] = i + 1;
 	}
 
 	while (true)
 	{
+		cout << "Bievenue sur le jeu du Morpion" << endl;
+		for (int i = 0; i < 9; i++)
+		{
+			PrintCell(cells[i]);
+			if ((i + 1 )% 3 == 0)
+			{
+				cout << endl;
+			}
+		}
 
-		cout << "Choisir une case" << endl;
+		cout << DEFAULT << "Choisir une case" << endl;
 		int index = AskInt(1, 9);
 		system("cls");
 
-		
-		
+		cells[index - 1] = -1;
+
 	}
-
-
 
 	return 0;
 }
