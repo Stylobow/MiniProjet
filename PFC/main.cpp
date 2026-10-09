@@ -41,14 +41,21 @@ int main()
 
 
 	while (true) {
+		int victory = 0;
+		int defeat = 0;
+		int draw = 0;
+
 		int round = 0;
+		int maxRound = 3;
 		int maxPoints = 3;
+		int ecartPoints = 2;
 
 		int playerScore = 0;
 		int botScore = 0;
 
-		while (true) {
-			if (playerScore >= maxPoints || botScore >= maxPoints) break;
+		while (round < maxRound) {
+			int ecart = abs(playerScore - botScore);
+			if ((playerScore >= maxPoints && ecart >= ecartPoints) || (botScore >= maxPoints && ecart >= ecartPoints)) break;
 			round++;
 			cout << "Pierre: 1 | Feuille: 2 | Ciseaux: 3" << endl;
 			int playerChoice = AskInt(1, 3);
@@ -59,50 +66,19 @@ int main()
 			PrintChoice(botChoice);
 			cout << endl;
 
-			if (playerChoice == 1)
+			if ((playerChoice == 1 && botChoice == 3) || (playerChoice == 2 && botChoice == 1) || (playerChoice == 3 && botChoice == 2))
 			{
-				if (botChoice == 1)
-				{
-					cout << "Egalite" << endl;
-				}
-				else if (botChoice == 2) {
-					cout << "Perdu" << endl;
-					botScore++;
-				}
-				else {
-					cout << "Gagne" << endl;
-					playerScore++;
-				}
+				cout << "Gagne" << endl;
+				playerScore++;
+				victory++;
 			}
-			else if (playerChoice == 2)
-			{
-				if (botChoice == 1)
-				{
-					cout << "Gagne" << endl;
-					playerScore++;
-				}
-				else if (botChoice == 2) {
-					cout << "Egalite" << endl;
-				}
-				else {
-					cout << "Perdu" << endl;
-					botScore++;
-				}
+			else if (playerChoice == botChoice) {
+				cout << "Egalite" << endl;
+				draw++;
 			}
-			else
-			{
-				if (botChoice == 1)
-				{
-					cout << "Perdu" << endl;
-					botScore++;
-				}
-				else if (botChoice == 2) {
-					cout << "Gagne" << endl;
-					playerScore++;
-				}
-				else {
-					cout << "Egalite" << endl;
-				}
+			else {
+				cout << "Perdu" << endl;
+				botScore++;
 			}
 		}
 		cout << "Joueur : " << playerScore << " | " << botScore << " Bot" << endl;
@@ -112,10 +88,6 @@ int main()
 		else {
 			cout << "Vous avez perdu." << endl;
 		}
-		cout << "Voulez-vous recommencer ? (Oui: 1 | Non: 2)";
-		int restart;
-		cin >> restart;
-		if (!restart) { break; };
 	}
 
 	return 0;
