@@ -38,7 +38,7 @@ void PrintCell(int c, int cellNumber)
 	{
 		cout << GREEN "-";
 	}
-	cout << YELLOW << " ] ";
+	cout << YELLOW << " ] " DEFAULT;
 }
 
 int CheckWin(int cells[9])
@@ -73,6 +73,8 @@ bool IsGameFull(int cells[9])
 
 int main()
 {
+	srand(time(NULL));
+
 	int currentPlayer = 1;
 
 	int cells[9] = { 0 }; // 0 = Vide | 1 = Joueur1 (X) | 2 = Joueur2 (O)
@@ -93,41 +95,54 @@ int main()
 		}
 
 		int winner = CheckWin(cells);
-		
+
 		if (winner != 0)
 		{
-			cout << endl << (winner == 1 ? DEFAULT "Le " RED "Joueur 1 (X) " DEFAULT "a gagne la partie !" : DEFAULT "Le " BLUE "Joueur 2 (O)" DEFAULT "a gagne la partie !") << DEFAULT << endl;
+			cout << endl << (winner == 1 ? DEFAULT "Le " RED "Joueur 1 (X) " DEFAULT "a gagne la partie !" : DEFAULT "Le " BLUE "Joueur 2 (O) " DEFAULT "a gagne la partie !") << DEFAULT << endl;
 			break;
 		}
 
-		if (IsGameFull(cells)) 
+		if (IsGameFull(cells))
 		{
 			cout << endl << YELLOW "Match nul !" DEFAULT << endl;
 			break;
 		}
 
-		cout << endl << DEFAULT "Choisisez une case : " << endl;
-		
-		cout << "Ligne (1-3) : ";
-		int row = AskInt(1, 3);
-
-		cout << "Colonne (1-3) :";
-		int col = AskInt(1, 3);
-
-		int index = (row - 1) * 3 + (col - 1);
-
-		if (cells[index] != 0)
+		if (currentPlayer == 1)
 		{
-			cout << RED "Cette case est deja prise ! Veuillez en choisir une autre : " DEFAULT;
-			cin.ignore();
-			cin.get();
-			continue;
+			cout << endl << DEFAULT "C'est a vous de jouer :" << endl;
+
+			cout << "Ligne (1-3) : ";
+			int row = AskInt(1, 3);
+
+			cout << "Colonne (1-3) :";
+			int col = AskInt(1, 3);
+
+			int index = (row - 1) * 3 + (col - 1);
+
+			if (cells[index] != 0)
+			{
+				cout << RED "Cette case est deja prise ! Veuillez en choisir une autre : " DEFAULT;
+				cin.ignore();
+				cin.get();
+				continue;
+			}
+
+			cells[index] = currentPlayer;
+		}
+		else {
+			int index;
+
+			do 
+			{
+				index = rand() % 9;
+			} 
+			while (cells[index] != 0);
+
+			cells[index] = currentPlayer;
 		}
 
-		cells[index] = currentPlayer;
-
 		currentPlayer = 3 - currentPlayer;
-
 	}
 
 	return 0;
