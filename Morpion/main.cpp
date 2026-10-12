@@ -6,8 +6,8 @@
 #define BLUE "\033[34m"
 #define YELLOW "\033[33m"
 
-const int SIZE = 4; //Nombre de lignes et de colonnes
-const int CELLS = SIZE * SIZE; //Nombre total de celules 
+const int SIZE = 8; // Nombre de lignes et de colonnes
+const int CELLS = SIZE * SIZE; // Nombre total de celules 
 
 using namespace std;
 
@@ -44,19 +44,84 @@ void PrintCell(int c, int cellNumber)
 	cout << YELLOW << " ] " DEFAULT;
 }
 
-bool CheckWin()
+bool CheckWin(const int cells[CELLS], int playerSymbol)
 {
-	int cells[CELLS];
+	/*Test Grille 4x4
+	ROW	1	  2     3     4
+COL	1 [ 0 ] [ 1 ] [ 2 ] [ 3 ]
+	2 [ 4 ] [ 5 ] [ 6 ] [ 7 ]
+	3 [ 8 ] [ 9 ] [ 10] [ 11]
+	4 [ 12] [ 13] [ 14] [ 15]
 
-	for (int i = 0; i < (SIZE * SIZE); i++)
+	Diagonales gauche : Verifier coin haut gauche à coin bas droit
+	[i * SIZE + i]
+	i = 0 -> 0 * 4 + 0 = 0
+	i = 1 -> 1 * 4 + 1 = 5
+	i = 2 -> 2 * 4 + 2 = 10
+	i = 3 -> 3 * 4 + 3 = 15
+
+	Diagonales droite : Verifier coin haut droite à coin bas gauche
+	[i * SIZE + (SIZE - 1 - i)]
+	i = 0 -> 0 * 4 + (4 - 1 - 0) = 3 
+	i = 1 -> 1 * 4 + (4 - 1 - 1) = 6
+	i = 2 -> 2 * 4 + (4 - 1 - 2) = 9
+	i = 3 -> 3 * 4 + (4 - 1 - 3) = 12
+	*/
+
+	//Verifiction Lignes
+	for (int row = 0; row < SIZE; row++)
 	{
-		int index = i * 3;
-
-		if ((cells[index] == 1 || cells[index] == 2) && cells[index] == cells[index + 1] && cells[index] == cells[index + 2])
+		bool win = true;
+		for (int col = 0; col < SIZE; col++)
 		{
-			return true;
+			if (cells[row * SIZE + col] != playerSymbol) // Mauvais Symbole
+			{
+				win = false;
+				break;
+			}
+		}
+		if (win) return true;
+	}
+
+	//Verification Collones
+	for (int col = 0; col < SIZE; col++)
+	{
+		bool win = true;
+		for (int row = 0; row < SIZE; row++)
+		{
+			if (cells[row * SIZE + col] != playerSymbol)
+			{
+				win = false;
+				break;
+			}
+		}
+		if (win) return true;
+	}
+
+	//Verification Diagonales
+	bool winDiag1 = true;
+	for (int i = 0; i < SIZE; i++)
+	{
+		if (cells[i * SIZE + i] != playerSymbol)
+		{
+			winDiag1 = false;
+			break;
 		}
 	}
+
+	if (winDiag1) return true;
+
+	bool winDiag2 = true;
+	for (int i = 0; i < SIZE; i++)
+	{
+		if (cells[i * SIZE + (SIZE - 1 - i)] != playerSymbol)
+		{
+			winDiag2 = false;
+			break;
+		}
+	}
+	if (winDiag2) return true;
+
 	return false;
 }
 
@@ -95,17 +160,11 @@ int main()
 			}
 		}
 
-		if (CheckWin) {
-			cout << RED "Partie fini" DEFAULT;
+		int lastPlayer = 3 - currentPlayer;
+		if (CheckWin(cells, lastPlayer)) {
+			cout << endl << (lastPlayer == 1 ? RED "Le Joueur 1 (X) a gagne la partie !" : BLUE "Le Joueur 2 (O) a gagne la partie !") << DEFAULT << endl;
 			break;
 		}
-
-		/*
-	if (winner != 0)
-	{
-		cout << endl << (winner == 1 ? DEFAULT "Le " RED "Joueur 1 (X) " DEFAULT "a gagne la partie !" : DEFAULT "Le " BLUE "Joueur 2 (O) " DEFAULT "a gagne la partie !") << DEFAULT << endl;
-		break;
-	}*/
 
 		if (IsGameFull(cells))
 		{
