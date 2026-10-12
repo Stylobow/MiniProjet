@@ -6,7 +6,7 @@
 #define BLUE "\033[34m"
 #define YELLOW "\033[33m"
 
-const int SIZE = 8; // Nombre de lignes et de colonnes
+const int SIZE = 3; // Nombre de lignes et de colonnes
 const int CELLS = SIZE * SIZE; // Nombre total de celules 
 
 using namespace std;
@@ -44,6 +44,7 @@ void PrintCell(int c, int cellNumber)
 	cout << YELLOW << " ] " DEFAULT;
 }
 
+
 bool CheckWin(const int cells[CELLS], int playerSymbol)
 {
 	/*Test Grille 4x4
@@ -62,7 +63,7 @@ COL	1 [ 0 ] [ 1 ] [ 2 ] [ 3 ]
 
 	Diagonales droite : Verifier coin haut droite à coin bas gauche
 	[i * SIZE + (SIZE - 1 - i)]
-	i = 0 -> 0 * 4 + (4 - 1 - 0) = 3 
+	i = 0 -> 0 * 4 + (4 - 1 - 0) = 3
 	i = 1 -> 1 * 4 + (4 - 1 - 1) = 6
 	i = 2 -> 2 * 4 + (4 - 1 - 2) = 9
 	i = 3 -> 3 * 4 + (4 - 1 - 3) = 12
@@ -125,9 +126,47 @@ COL	1 [ 0 ] [ 1 ] [ 2 ] [ 3 ]
 	return false;
 }
 
+void AI_Play(int cells[CELLS], int aiPlayer)
+{
+	int opponent = 3 - aiPlayer;
+
+	for (int i = 0; i < CELLS; i++)
+	{
+		if (cells[i] == 0)
+		{
+			cells[i] = aiPlayer;
+			if (CheckWin(cells, aiPlayer))
+				return;
+
+			cells[i] = 0;
+		}
+	}
+
+	for (int i = 0; i < CELLS; i++)
+	{
+		if (cells[i] == 0)
+		{
+			cells[i] = opponent;
+			if (CheckWin(cells, opponent))
+			{
+				cells[i] = aiPlayer;
+				return;
+			}
+			cells[i] = 0;
+		}
+	}
+
+	int index;
+		do {
+			index = rand() % CELLS;
+		} while (cells[index] != 0);
+
+		cells[index] = aiPlayer;
+}
+
 bool IsGameFull(int cells[CELLS])
 {
-	for (int i = 0; i < 9; i++)
+	for (int i = 0; i < CELLS; i++)
 	{
 		if (cells[i] == 0)
 		{
@@ -195,14 +234,7 @@ int main()
 			cells[index] = currentPlayer;
 		}
 		else {
-			int index;
-
-			do
-			{
-				index = rand() % CELLS;
-			} while (cells[index] != 0);
-
-			cells[index] = currentPlayer;
+			AI_Play(cells, currentPlayer);
 		}
 
 		currentPlayer = 3 - currentPlayer;
