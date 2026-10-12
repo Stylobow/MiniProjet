@@ -6,6 +6,9 @@
 #define BLUE "\033[34m"
 #define YELLOW "\033[33m"
 
+const int SIZE = 4; //Nombre de lignes et de colonnes
+const int CELLS = SIZE * SIZE; //Nombre total de celules 
+
 using namespace std;
 
 int AskInt(int min, int max)
@@ -41,25 +44,23 @@ void PrintCell(int c, int cellNumber)
 	cout << YELLOW << " ] " DEFAULT;
 }
 
-int CheckWin(int cells[9])
+bool CheckWin()
 {
-	int wins[8][3] = {
-		{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, // Horizontal
-		{0, 3, 6}, {1, 4, 7}, {2, 5, 8}, // Vertical
-		{0, 4, 8}, {2, 4, 6}			 // Diagonale
-	};
+	int cells[CELLS];
 
-	for (int i = 0; i < 8; i++)
+	for (int i = 0; i < (SIZE * SIZE); i++)
 	{
-		if (cells[wins[i][0]] != 0 && cells[wins[i][0]] == cells[wins[i][1]] && cells[wins[i][0]] == cells[wins[i][2]])
+		int index = i * 3;
+
+		if ((cells[index] == 1 || cells[index] == 2) && cells[index] == cells[index + 1] && cells[index] == cells[index + 2])
 		{
-			return cells[wins[i][0]];
+			return true;
 		}
 	}
-	return 0;
+	return false;
 }
 
-bool IsGameFull(int cells[9])
+bool IsGameFull(int cells[CELLS])
 {
 	for (int i = 0; i < 9; i++)
 	{
@@ -77,7 +78,7 @@ int main()
 
 	int currentPlayer = 1;
 
-	int cells[9] = { 0 }; // 0 = Vide | 1 = Joueur1 (X) | 2 = Joueur2 (O)
+	int cells[CELLS] = { 0 }; // 0 = Vide | 1 = Joueur1 (X) | 2 = Joueur2 (O)
 
 	while (true)
 	{
@@ -85,22 +86,26 @@ int main()
 		cout << "Bievenue sur le jeu du Morpion" << endl;
 		cout << "Tour du Joueur : " << (currentPlayer == 1 ? RED "Rouge (X)" : BLUE "Bleu (O)") << DEFAULT << endl;
 
-		for (int i = 0; i < 9; i++)
+		for (int i = 0; i < CELLS; i++)
 		{
 			PrintCell(cells[i], i + 1);
-			if ((i + 1) % 3 == 0)
+			if ((i + 1) % SIZE == 0)
 			{
 				cout << endl;
 			}
 		}
 
-		int winner = CheckWin(cells);
-
-		if (winner != 0)
-		{
-			cout << endl << (winner == 1 ? DEFAULT "Le " RED "Joueur 1 (X) " DEFAULT "a gagne la partie !" : DEFAULT "Le " BLUE "Joueur 2 (O) " DEFAULT "a gagne la partie !") << DEFAULT << endl;
+		if (CheckWin) {
+			cout << RED "Partie fini" DEFAULT;
 			break;
 		}
+
+		/*
+	if (winner != 0)
+	{
+		cout << endl << (winner == 1 ? DEFAULT "Le " RED "Joueur 1 (X) " DEFAULT "a gagne la partie !" : DEFAULT "Le " BLUE "Joueur 2 (O) " DEFAULT "a gagne la partie !") << DEFAULT << endl;
+		break;
+	}*/
 
 		if (IsGameFull(cells))
 		{
@@ -112,13 +117,13 @@ int main()
 		{
 			cout << endl << DEFAULT "C'est a vous de jouer :" << endl;
 
-			cout << "Ligne (1-3) : ";
-			int row = AskInt(1, 3);
+			cout << "Ligne (1-" << SIZE << ") : ";
+			int row = AskInt(1, SIZE);
 
-			cout << "Colonne (1-3) :";
-			int col = AskInt(1, 3);
+			cout << "Colonne (1-" << SIZE << ") : ";
+			int col = AskInt(1, SIZE);
 
-			int index = (row - 1) * 3 + (col - 1);
+			int index = (row - 1) * SIZE + (col - 1);
 
 			if (cells[index] != 0)
 			{
@@ -133,11 +138,10 @@ int main()
 		else {
 			int index;
 
-			do 
+			do
 			{
-				index = rand() % 9;
-			} 
-			while (cells[index] != 0);
+				index = rand() % CELLS;
+			} while (cells[index] != 0);
 
 			cells[index] = currentPlayer;
 		}
