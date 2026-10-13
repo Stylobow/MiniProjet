@@ -6,43 +6,29 @@
 #define GREEN "\033[32m"
 #define BLUE "\033[34m"
 #define YELLOW "\033[33m"
+#define CYAN "\033[36m"
 
 const int SIZE = 3; // Nombre de lignes et de colonnes
-const int CELLS = SIZE * SIZE; // Nombre total de celules 
+const int CELLS = SIZE * SIZE; // Nombre total de cellules
 
 using namespace std;
 
-int AskInt(int min, int max)
-{
-	int value;
-	while (true)
-	{
-		cin >> value;
-		if (value >= min && value <= max)
-			break;
-
-		cout << "Erreur saisie" << endl;
-	}
-
-	return value;
-}
-
-void PrintCell(int c, int cellNumber, bool isSelected)
+void PrintCell(int c, bool isSelected)
 {
 	cout << YELLOW << "[ ";
 	if (c == 1)
 	{
-		cout << RED "X";
+		cout << RED << (isSelected ? "@" : "X");
 	}
 	else if (c == 2)
 	{
-		cout << BLUE "O";
+		cout << BLUE << (isSelected ? "@" : "O");
 	}
 	else
 	{
 		if (isSelected)
 		{
-			cout << GREEN ":";
+			cout << CYAN "@";
 		}
 		else {
 			cout << GREEN "-";
@@ -50,7 +36,6 @@ void PrintCell(int c, int cellNumber, bool isSelected)
 	}
 	cout << YELLOW << " ] " DEFAULT;
 }
-
 
 bool CheckWin(const int cells[CELLS], int playerSymbol)
 {
@@ -76,13 +61,14 @@ COL	1 [ 0 ] [ 1 ] [ 2 ] [ 3 ]
 	i = 3 -> 3 * 4 + (4 - 1 - 3) = 12
 	*/
 
-	//Verifiction Lignes
+
+	// Verification Lignes
 	for (int row = 0; row < SIZE; row++)
 	{
 		bool win = true;
 		for (int col = 0; col < SIZE; col++)
 		{
-			if (cells[row * SIZE + col] != playerSymbol) // Mauvais Symbole
+			if (cells[row * SIZE + col] != playerSymbol)
 			{
 				win = false;
 				break;
@@ -91,7 +77,7 @@ COL	1 [ 0 ] [ 1 ] [ 2 ] [ 3 ]
 		if (win) return true;
 	}
 
-	//Verification Collones
+	// Verification Colonnes
 	for (int col = 0; col < SIZE; col++)
 	{
 		bool win = true;
@@ -106,7 +92,7 @@ COL	1 [ 0 ] [ 1 ] [ 2 ] [ 3 ]
 		if (win) return true;
 	}
 
-	//Verification Diagonales
+	// Verification Diagonale 1
 	bool winDiag1 = true;
 	for (int i = 0; i < SIZE; i++)
 	{
@@ -116,9 +102,9 @@ COL	1 [ 0 ] [ 1 ] [ 2 ] [ 3 ]
 			break;
 		}
 	}
-
 	if (winDiag1) return true;
 
+	// Verification Diagonale 2
 	bool winDiag2 = true;
 	for (int i = 0; i < SIZE; i++)
 	{
@@ -188,127 +174,98 @@ int main()
 	srand(time(NULL));
 
 	int currentPlayer = 1;
-
 	int cells[CELLS] = { 0 }; // 0 = Vide | 1 = Joueur1 (X) | 2 = Joueur2 (O)
-
 	int selectedCell = 0;
-	bool isSelected = false;
 
 	while (true)
 	{
-		system("cls");
-		cout << "Bievenue sur le jeu du Morpion" << endl;
-		cout << "Tour du Joueur : " << (currentPlayer == 1 ? RED "Rouge (X)" : BLUE "Bleu (O)") << DEFAULT << endl;
-
-		for (int i = 0; i < CELLS; i++)
-		{
-			if (selectedCell == i)
-			{
-				isSelected = true;
-			}
-			else {
-				isSelected = false;
-			}
-			PrintCell(cells[i], i + 1, isSelected);
-			if ((i + 1) % SIZE == 0)
-			{
-				cout << endl;
-			}
-		}
-
 		int lastPlayer = 3 - currentPlayer;
 		if (CheckWin(cells, lastPlayer)) {
-			cout << endl << (lastPlayer == 1 ? RED "Le Joueur 1 (X) a gagne la partie !" : BLUE "Le Joueur 2 (O) a gagne la partie !") << DEFAULT << endl;
+			system("cls");
+			cout << "=== FIN DE PARTIE ===" << endl << endl;
+			for (int i = 0; i < CELLS; i++)
+			{
+				PrintCell(cells[i], false);
+				if ((i + 1) % SIZE == 0) cout << endl;
+			}
+			cout << endl << (lastPlayer == 1 ? RED "Le Joueur 1 (X) a gagne !" : BLUE "Le Joueur 2 (O) a gagne !") << DEFAULT << endl;
 			break;
 		}
 
 		if (IsGameFull(cells))
 		{
+			system("cls");
+			cout << "=== FIN DE PARTIE ===" << endl << endl;
+			for (int i = 0; i < CELLS; i++)
+			{
+				PrintCell(cells[i], false);
+				if ((i + 1) % SIZE == 0) cout << endl;
+			}
 			cout << endl << YELLOW "Match nul !" DEFAULT << endl;
 			break;
 		}
 
 		if (currentPlayer == 1)
 		{
-			cout << endl << DEFAULT "C'est a vous de jouer :" << endl;
+			int row = selectedCell / SIZE;
+			int col = selectedCell % SIZE;
+			bool validated = false;
 
-			/*cout << "Ligne (1-" << SIZE << ") : ";
-			int row = AskInt(1, SIZE);
+			while (!validated)
+			{
+				system("cls");
+				cout << "Bienvenue sur le jeu du Morpion" << endl;
+				cout << "Deplacez-vous avec les fleches, puis appuyez sur ENTREE pour valider." << endl << endl;
+				cout << "Tour du Joueur : " << (currentPlayer == 1 ? RED "Rouge (X)" : BLUE "Bleu (O)") << DEFAULT << endl;
 
-			cout << "Colonne (1-" << SIZE << ") : ";
-			int col = AskInt(1, SIZE);*/
+				for (int i = 0; i < CELLS; i++)
+				{
+					PrintCell(cells[i], selectedCell == i);
+					if ((i + 1) % SIZE == 0)
+					{
+						cout << endl;
+					}
+				}
 
-
-			// Flèche bas : 80
-			// Flèche droite : 77
-			// Flèche gauche : 75
-			// Flèche haut : 72
-			int row = 1;
-			int col = 1;
-
-			bool input = false;
-
-			while (!input) {
 				int key = _getch();
 
-				switch (key) {
-				case 75: //Fleche gauche
-					if (row < 1) {
-						continue;
-					}
-					else {
-						row--;
-						input = true;
+				if (key == 0 || key == 224)
+				{
+					key = _getch();
+					switch (key)
+					{
+					case 72: // Flèche Haut
+						if (row > 0) row--;
+						break;
+					case 80: // Flèche Bas
+						if (row < SIZE - 1) row++;
+						break;
+					case 75: // Flèche Gauche
+						if (col > 0) col--;
+						break;
+					case 77: // Flèche Droite
+						if (col < SIZE - 1) col++;
 						break;
 					}
-				case 77: //Fleche droite
-					if (row > SIZE) {
-						continue;
+					selectedCell = row * SIZE + col;
+				}
+				else if (key == 13)
+				{
+					if (cells[selectedCell] != 0)
+					{
+						cout << endl << RED "Case deja prise !" DEFAULT;
+						_getch();
 					}
-					else {
-						row++;
-						input = true;
-						break;
-					}
-				case 72: //Fleche haut
-					if (col < 1) {
-						continue;
-					}
-					else {
-						col--;
-						input = true;
-						break;
-					}
-				case 80: //Fleche bas
-					if (col > SIZE) {
-						continue;
-					}
-					else {
-						col++;
-						input = true;
-						break;
+					else
+					{
+						cells[selectedCell] = currentPlayer;
+						validated = true;
 					}
 				}
 			}
-
-			cout << "ROW: " << row;
-			cout << "COL: " << col;
-			cout << "CELL: " << selectedCell;
-
-			int index = (row - 1) * SIZE + (col - 1);
-			selectedCell = index;
-
-			/*if (cells[index] != 0)
-			{
-				cout << RED "Cette case est deja prise ! Veuillez en choisir une autre : " DEFAULT;
-				cin.ignore();
-				cin.get();
-				continue;
-			}*/
-
-			cells[index] = currentPlayer;
 		}
-		else {
+		else
+		{
 			AI_Play(cells, currentPlayer);
 		}
 
