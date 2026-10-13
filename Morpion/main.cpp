@@ -1,4 +1,5 @@
-#include <iostream>
+﻿#include <iostream>
+#include <conio.h>
 
 #define DEFAULT "\033[0m"
 #define RED "\033[31m"
@@ -6,8 +7,8 @@
 #define BLUE "\033[34m"
 #define YELLOW "\033[33m"
 
-const int SIZE = 4; //Nombre de lignes et de colonnes
-const int CELLS = SIZE * SIZE; //Nombre total de celules 
+const int SIZE = 3; // Nombre de lignes et de colonnes
+const int CELLS = SIZE * SIZE; // Nombre total de celules 
 
 using namespace std;
 
@@ -26,7 +27,7 @@ int AskInt(int min, int max)
 	return value;
 }
 
-void PrintCell(int c, int cellNumber)
+void PrintCell(int c, int cellNumber, bool isSelected)
 {
 	cout << YELLOW << "[ ";
 	if (c == 1)
@@ -39,30 +40,140 @@ void PrintCell(int c, int cellNumber)
 	}
 	else
 	{
-		cout << GREEN "-";
+		if (isSelected)
+		{
+			cout << GREEN ":";
+		}
+		else {
+			cout << GREEN "-";
+		}
 	}
 	cout << YELLOW << " ] " DEFAULT;
 }
 
-bool CheckWin()
+
+bool CheckWin(const int cells[CELLS], int playerSymbol)
 {
-	int cells[CELLS];
+	/*Test Grille 4x4
+	ROW	1	  2     3     4
+COL	1 [ 0 ] [ 1 ] [ 2 ] [ 3 ]
+	2 [ 4 ] [ 5 ] [ 6 ] [ 7 ]
+	3 [ 8 ] [ 9 ] [ 10] [ 11]
+	4 [ 12] [ 13] [ 14] [ 15]
 
-	for (int i = 0; i < (SIZE * SIZE); i++)
+	Diagonales gauche : Verifier coin haut gauche � coin bas droit
+	[i * SIZE + i]
+	i = 0 -> 0 * 4 + 0 = 0
+	i = 1 -> 1 * 4 + 1 = 5
+	i = 2 -> 2 * 4 + 2 = 10
+	i = 3 -> 3 * 4 + 3 = 15
+
+	Diagonales droite : Verifier coin haut droite � coin bas gauche
+	[i * SIZE + (SIZE - 1 - i)]
+	i = 0 -> 0 * 4 + (4 - 1 - 0) = 3
+	i = 1 -> 1 * 4 + (4 - 1 - 1) = 6
+	i = 2 -> 2 * 4 + (4 - 1 - 2) = 9
+	i = 3 -> 3 * 4 + (4 - 1 - 3) = 12
+	*/
+
+	//Verifiction Lignes
+	for (int row = 0; row < SIZE; row++)
 	{
-		int index = i * 3;
-
-		if ((cells[index] == 1 || cells[index] == 2) && cells[index] == cells[index + 1] && cells[index] == cells[index + 2])
+		bool win = true;
+		for (int col = 0; col < SIZE; col++)
 		{
-			return true;
+			if (cells[row * SIZE + col] != playerSymbol) // Mauvais Symbole
+			{
+				win = false;
+				break;
+			}
+		}
+		if (win) return true;
+	}
+
+	//Verification Collones
+	for (int col = 0; col < SIZE; col++)
+	{
+		bool win = true;
+		for (int row = 0; row < SIZE; row++)
+		{
+			if (cells[row * SIZE + col] != playerSymbol)
+			{
+				win = false;
+				break;
+			}
+		}
+		if (win) return true;
+	}
+
+	//Verification Diagonales
+	bool winDiag1 = true;
+	for (int i = 0; i < SIZE; i++)
+	{
+		if (cells[i * SIZE + i] != playerSymbol)
+		{
+			winDiag1 = false;
+			break;
 		}
 	}
+
+	if (winDiag1) return true;
+
+	bool winDiag2 = true;
+	for (int i = 0; i < SIZE; i++)
+	{
+		if (cells[i * SIZE + (SIZE - 1 - i)] != playerSymbol)
+		{
+			winDiag2 = false;
+			break;
+		}
+	}
+	if (winDiag2) return true;
+
 	return false;
+}
+
+void AI_Play(int cells[CELLS], int aiPlayer)
+{
+	int opponent = 3 - aiPlayer;
+
+	for (int i = 0; i < CELLS; i++)
+	{
+		if (cells[i] == 0)
+		{
+			cells[i] = aiPlayer;
+			if (CheckWin(cells, aiPlayer))
+				return;
+
+			cells[i] = 0;
+		}
+	}
+
+	for (int i = 0; i < CELLS; i++)
+	{
+		if (cells[i] == 0)
+		{
+			cells[i] = opponent;
+			if (CheckWin(cells, opponent))
+			{
+				cells[i] = aiPlayer;
+				return;
+			}
+			cells[i] = 0;
+		}
+	}
+
+	int index;
+	do {
+		index = rand() % CELLS;
+	} while (cells[index] != 0);
+
+	cells[index] = aiPlayer;
 }
 
 bool IsGameFull(int cells[CELLS])
 {
-	for (int i = 0; i < 9; i++)
+	for (int i = 0; i < CELLS; i++)
 	{
 		if (cells[i] == 0)
 		{
@@ -80,6 +191,9 @@ int main()
 
 	int cells[CELLS] = { 0 }; // 0 = Vide | 1 = Joueur1 (X) | 2 = Joueur2 (O)
 
+	int selectedCell = 0;
+	bool isSelected = false;
+
 	while (true)
 	{
 		system("cls");
@@ -88,24 +202,25 @@ int main()
 
 		for (int i = 0; i < CELLS; i++)
 		{
-			PrintCell(cells[i], i + 1);
+			if (selectedCell == i)
+			{
+				isSelected = true;
+			}
+			else {
+				isSelected = false;
+			}
+			PrintCell(cells[i], i + 1, isSelected);
 			if ((i + 1) % SIZE == 0)
 			{
 				cout << endl;
 			}
 		}
 
-		if (CheckWin) {
-			cout << RED "Partie fini" DEFAULT;
+		int lastPlayer = 3 - currentPlayer;
+		if (CheckWin(cells, lastPlayer)) {
+			cout << endl << (lastPlayer == 1 ? RED "Le Joueur 1 (X) a gagne la partie !" : BLUE "Le Joueur 2 (O) a gagne la partie !") << DEFAULT << endl;
 			break;
 		}
-
-		/*
-	if (winner != 0)
-	{
-		cout << endl << (winner == 1 ? DEFAULT "Le " RED "Joueur 1 (X) " DEFAULT "a gagne la partie !" : DEFAULT "Le " BLUE "Joueur 2 (O) " DEFAULT "a gagne la partie !") << DEFAULT << endl;
-		break;
-	}*/
 
 		if (IsGameFull(cells))
 		{
@@ -117,33 +232,84 @@ int main()
 		{
 			cout << endl << DEFAULT "C'est a vous de jouer :" << endl;
 
-			cout << "Ligne (1-" << SIZE << ") : ";
+			/*cout << "Ligne (1-" << SIZE << ") : ";
 			int row = AskInt(1, SIZE);
 
 			cout << "Colonne (1-" << SIZE << ") : ";
-			int col = AskInt(1, SIZE);
+			int col = AskInt(1, SIZE);*/
+
+
+			// Flèche bas : 80
+			// Flèche droite : 77
+			// Flèche gauche : 75
+			// Flèche haut : 72
+			int row = 1;
+			int col = 1;
+
+			bool input = false;
+
+			while (!input) {
+				int key = _getch();
+
+				switch (key) {
+				case 75: //Fleche gauche
+					if (row < 1) {
+						continue;
+					}
+					else {
+						row--;
+						input = true;
+						break;
+					}
+				case 77: //Fleche droite
+					if (row > SIZE) {
+						continue;
+					}
+					else {
+						row++;
+						input = true;
+						break;
+					}
+				case 72: //Fleche haut
+					if (col < 1) {
+						continue;
+					}
+					else {
+						col--;
+						input = true;
+						break;
+					}
+				case 80: //Fleche bas
+					if (col > SIZE) {
+						continue;
+					}
+					else {
+						col++;
+						input = true;
+						break;
+					}
+				}
+			}
+
+			cout << "ROW: " << row;
+			cout << "COL: " << col;
+			cout << "CELL: " << selectedCell;
 
 			int index = (row - 1) * SIZE + (col - 1);
+			selectedCell = index;
 
-			if (cells[index] != 0)
+			/*if (cells[index] != 0)
 			{
 				cout << RED "Cette case est deja prise ! Veuillez en choisir une autre : " DEFAULT;
 				cin.ignore();
 				cin.get();
 				continue;
-			}
+			}*/
 
 			cells[index] = currentPlayer;
 		}
 		else {
-			int index;
-
-			do
-			{
-				index = rand() % CELLS;
-			} while (cells[index] != 0);
-
-			cells[index] = currentPlayer;
+			AI_Play(cells, currentPlayer);
 		}
 
 		currentPlayer = 3 - currentPlayer;
